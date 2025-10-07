@@ -15,13 +15,29 @@ const db = {};
 let sequelize;
 if (config.use_env_variable) {
   // Utilisation de la variable d'environnement si configurée
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(process.env[config.use_env_variable], {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // indispensable sur Render
+      },
+    },
+    logging: console.log, // ou false si tu veux désactiver
+  });
 } else {
   // Sinon on utilise la config du fichier JSON
   sequelize = new Sequelize(config.database, config.username, config.password, {
     host: config.host,
-    dialect: config.dialect, // IMPORTANT: on s'assure de prendre le dialect depuis config.json
-    logging: false,          // optionnel : désactive logs SQL (à adapter)
+    port: config.port || 5432,
+    dialect: config.dialect,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // indispensable sur Render
+      },
+    },
+    logging: console.log, // pour debug, mettre false pour production
   });
 }
 
@@ -42,7 +58,7 @@ fs
     db[model.name] = model;
   });
 
-// Import manuel du modèle AdministrateurGeneral (pour éviter double import ou conflit)
+// Import manuel du modèle AdministrateurGeneral
 const AdministrateurGeneral = require('./administrateurGeneral')(sequelize, Sequelize.DataTypes);
 db.AdministrateurGeneral = AdministrateurGeneral;
 
