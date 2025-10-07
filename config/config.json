@@ -3,21 +3,21 @@
     "username": "johnluc",
     "password": null,
     "database": "ma_commune_db",
-    "host": "127.0.0.1",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
     "username": "johnluc",
     "password": null,
     "database": "database_test",
-    "host": "127.0.0.1",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "production": {
     "username": "johnluc",
     "password": null,
     "database": "database_production",
-    "host": "127.0.0.1",
+    "host": "localhost",
     "dialect": "postgres"
   }
 }
