@@ -208,6 +208,11 @@ module.exports = {
 
       const citoyen = demande.citoyen;
       const donneesDemande = JSON.parse(demande.donneesJson || '{}');
+      // Ajout Render: Correction URL photo
+      const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
+      const photoUrl = donneesDemande.photoUrl
+        ? donneesDemande.photoUrl.replace('http://localhost:4000', BASE_URL)
+        : null;
       const typeDemande = demande.typeDemande;
 
       let htmlContent = '';
@@ -582,7 +587,7 @@ module.exports = {
                   <!-- Corps de la carte -->
                   <div class="card-body">
                     <div class="card-left">
-                      <img src="${donneesDemande.photoUrl || 'https://placehold.co/70x70/003DA5/FFFFFF?text=PHOTO'}" alt="Photo de profil" class="profile-pic">
+                      <img src="${photoUrl || 'https://placehold.co/70x70/003DA5/FFFFFF?text=PHOTO'}" alt="Photo de profil" class="profile-pic">
                       <div class="qr-code">
                         <img src="${qrCodeDataURL}" alt="QR Code">
                       </div>
@@ -714,6 +719,11 @@ module.exports = {
       
       const citoyen = demande.citoyen;
       const donneesDemande = JSON.parse(demande.donneesJson || '{}');
+      // Ajout Render: Correction URL photo
+      const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
+      const photoUrl = donneesDemande.photoUrl
+        ? donneesDemande.photoUrl.replace('http://localhost:4000', BASE_URL)
+        : null;
       const typeDemande = demande.typeDemande;
       const currentDate = new Date().toLocaleDateString("fr-FR");
       
@@ -1145,7 +1155,7 @@ module.exports = {
                 </div>
                 <div class="card-body">
                   <div class="card-left">
-                    <img src="${donneesDemande.photoUrl || 'https://placehold.co/60x60/003DA5/FFFFFF?text=PHOTO'}" alt="Photo de profil" class="profile-pic">
+                    <img src="${photoUrl || 'https://placehold.co/60x60/003DA5/FFFFFF?text=PHOTO'}" alt="Photo de profil" class="profile-pic">
                     <div class="qr-code">
                       <img src="${qrCodeDataURL}" alt="QR Code">
                     </div>
