@@ -1,6 +1,7 @@
 // controllers/demandeController.js
 const { Demande, Citoyen, Statut, Agent, Commune, Province, Administrateur } = require('../models'); // Added Administrateur model
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs'); // For createWriteStream
@@ -629,9 +630,10 @@ module.exports = {
       console.log('HTML Content ready. Launching Puppeteer...');
       // Puppeteer launch compatible Render
       const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome'
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
       });
       const page = await browser.newPage();
       await page.setContent(htmlContent);
@@ -1189,7 +1191,12 @@ module.exports = {
 
       console.log('Reconstruction et ajout de signature au contenu HTML.');
       
-      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+      const browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
       const page = await browser.newPage();
       await page.setContent(htmlContent, { waitUntil: 'networkidle0' }); // Attendre que le réseau soit inactif
       console.log('Contenu de la page avec signature défini.');
