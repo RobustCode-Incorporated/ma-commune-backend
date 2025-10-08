@@ -26,16 +26,9 @@ app.use(cors());
 app.use(express.json());
 
 // **SERVIR LES FICHIERS STATIQUES DU DOSSIER 'documents'**
-// Cette ligne rend le contenu du dossier 'documents' accessible via l'URL /documents
-// Par exemple, si vous avez un fichier 'acte_naissance_123.pdf' dans './documents',
-// il sera accessible via http://votre_serveur:4000/documents/acte_naissance_123.pdf
 app.use('/documents', express.static(path.join(__dirname, 'documents')));
 
-// --- NOUVELLE LIGNE ---
 // **SERVIR LES IMAGES UPLOADEES**
-// Cette ligne rend le contenu du dossier './public/uploads' accessible via l'URL /uploads
-// C'est nécessaire pour que le navigateur puisse charger l'image
-// à partir de l'URL stockée dans votre base de données.
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 
@@ -62,18 +55,32 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auth', authRoutes);
 
 
-// Connexion à la base de données + Synchronisation des modèles
-db.sequelize.sync({ alter: true }) // 'alter: true' ajuste les tables sans supprimer les données
-  .then(() => {
-    console.log('✅ Base de données synchronisée');
-    return db.sequelize.authenticate();
-  })
-  .then(() => {
-    console.log('✅ Connexion à la base réussie');
-    // Démarrage du serveur après synchro et connexion DB
-    const PORT = process.env.PORT || 4000;
-    app.listen(PORT, () => console.log(`🚀 Serveur lancé sur le port ${PORT}`));
-  })
-  .catch(err => {
-    console.error('❌ Erreur lors de la synchronisation ou connexion:', err);
-  });
+// *******************************************************************
+// **** Démarrage du Serveur (Écoute du Port) ****
+// Démarrage immédiat pour éviter le "Timed Out" de Render.
+// La logique de DB s'exécute ensuite de manière asynchrone.
+// *******************************************************************
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+    
+    // *******************************************************************
+    // **** Connexion et Synchro DB (Exécutée après le démarrage) ****
+    // La synchronisation Sequelize ne bloque plus le démarrage de l'API.
+    // *******************************************************************
+    db.sequelize.sync({ alter: true }) // 'alter: true' ajuste les tables sans supprimer les données
+      .then(() => {
+        console.log('✅ Base de données synchronisée');
+        return db.sequelize.authenticate();
+      })
+      .then(() => {
+        console.log('✅ Connexion à la base réussie');
+      })
+      .catch(err => {
+        // En cas d'échec de la connexion/synchronisation, on loggue l'erreur
+        // mais on laisse l'API tourner. Les routes qui dépendent de la DB
+        // échoueront, mais le service ne fera pas de timeout.
+        console.error('❌ Erreur lors de la synchronisation ou connexion à la DB :', err.message || err);
+      });
+});
