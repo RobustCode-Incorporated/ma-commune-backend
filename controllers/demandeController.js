@@ -238,6 +238,17 @@ module.exports = {
       console.log('DEBUG: Commune Naissance Enfant:', communeNaissanceEnfant?.nom);
       console.log('DEBUG: Province Naissance Enfant:', provinceNaissanceEnfant?.nom);
 
+      // Charger le logo en base64
+      const logoPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'app_logo.png');
+      let logoBase64 = '';
+      try {
+        const logoBuffer = await fs.readFile(logoPath);
+        logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+      } catch (e) {
+        console.error('Erreur lors de la lecture du logo:', e);
+        logoBase64 = '';
+      }
+
       // Define the base signature block without the Bourgmestre's name/font for initial generation
       const baseSignatureBlock = `
         <div class="signature-section" style="text-align: right; margin-top: 50px;">
@@ -300,7 +311,7 @@ module.exports = {
 </style>
 <body>
   <div class="header-with-image">
-    <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+    <img src="${logoBase64}" alt="Logo" class="header-image">
     <div class="header-text">
       <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
       <p>PROVINCE DE KINSHASA</p>
@@ -375,7 +386,7 @@ module.exports = {
             </style>
             <body>
               <div class="header-with-image">
-                <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+                <img src="${logoBase64}" alt="Logo" class="header-image">
                 <div class="header-text">
                   <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
                   <p>PROVINCE DE KINSHASA</p>
@@ -448,7 +459,7 @@ module.exports = {
             </style>
             <body>
               <div class="header-with-image">
-                <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+                <img src="${logoBase64}" alt="Logo" class="header-image">
                 <div class="header-text">
                   <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
                   <p>PROVINCE DE KINSHASA</p>
@@ -577,7 +588,7 @@ module.exports = {
                 <div class="id-card">
                   <!-- En-tête avec logo et texte -->
                   <div class="header-with-image">
-                    <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+                    <img src="${logoBase64}" alt="Logo" class="header-image">
                     <div class="header-text">
                       <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
                       <p>COMMUNE DE ${citoyen.commune?.nom?.toUpperCase() || 'XXX'}</p>
@@ -726,6 +737,17 @@ module.exports = {
         : null;
       const typeDemande = demande.typeDemande;
       const currentDate = new Date().toLocaleDateString("fr-FR");
+
+      // Charger le logo en base64
+      const logoPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'app_logo.png');
+      let logoBase64 = '';
+      try {
+        const logoBuffer = await fs.readFile(logoPath);
+        logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+      } catch (e) {
+        console.error('Erreur lors de la lecture du logo:', e);
+        logoBase64 = '';
+      }
       
       // *** MODIFICATION ICI : Récupérer le nom du bourgmestre depuis req.user ***
       let bourgmestreName = 'Nom du Bourgmestre (Fallback)'; // Default fallback for clarity in logs
@@ -836,7 +858,7 @@ module.exports = {
             </style>
             <body>
               <div class="header-with-image">
-                <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+                <img src="${logoBase64}" alt="Logo" class="header-image">
                 <div class="header-text">
                   <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
                   <p>PROVINCE DE KINSHASA</p>
@@ -918,7 +940,7 @@ module.exports = {
             </style>
             <body>
               <div class="header-with-image">
-                <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+                <img src="${logoBase64}" alt="Logo" class="header-image">
                 <div class="header-text">
                   <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
                   <p>PROVINCE DE KINSHASA</p>
@@ -998,7 +1020,7 @@ module.exports = {
             </style>
             <body>
               <div class="header-with-image">
-                <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
+                <img src="${logoBase64}" alt="Logo" class="header-image">
                 <div class="header-text">
                   <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
                   <p>PROVINCE DE KINSHASA</p>
@@ -1146,13 +1168,13 @@ module.exports = {
             </style>
             <body>
               <div class="id-card">
-                <div class="header-with-image">
-                  <img src="http://localhost:4000/assets/images/app_logo.png" alt="Logo" class="header-image">
-                  <div class="header-text">
-                    <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
-                    <p>COMMUNE DE ${citoyen.commune?.nom?.toUpperCase() || 'XXX'}</p>
-                  </div>
+              <div class="header-with-image">
+                <img src="${logoBase64}" alt="Logo" class="header-image">
+                <div class="header-text">
+                  <h3>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</h3>
+                  <p>COMMUNE DE ${citoyen.commune?.nom?.toUpperCase() || 'XXX'}</p>
                 </div>
+              </div>
                 <div class="card-body">
                   <div class="card-left">
                     <img src="${photoUrl || 'https://placehold.co/60x60/003DA5/FFFFFF?text=PHOTO'}" alt="Photo de profil" class="profile-pic">
