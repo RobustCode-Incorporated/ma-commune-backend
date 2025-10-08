@@ -208,11 +208,12 @@ module.exports = {
 
       const citoyen = demande.citoyen;
       const donneesDemande = JSON.parse(demande.donneesJson || '{}');
-      // Ajout Render: Correction URL photo
+      // Ajout Render: Correction URL photo (remplace localhost par Render URL si nécessaire)
       const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
-      const photoUrl = donneesDemande.photoUrl
-        ? donneesDemande.photoUrl.replace('http://localhost:4000', BASE_URL)
-        : null;
+      let photoUrl = null;
+      if (donneesDemande.photoUrl) {
+        photoUrl = donneesDemande.photoUrl.replace('http://localhost:4000', BASE_URL).replace('https://localhost:4000', BASE_URL);
+      }
       const typeDemande = demande.typeDemande;
 
       let htmlContent = '';
@@ -238,7 +239,7 @@ module.exports = {
       console.log('DEBUG: Commune Naissance Enfant:', communeNaissanceEnfant?.nom);
       console.log('DEBUG: Province Naissance Enfant:', provinceNaissanceEnfant?.nom);
 
-      // Charger le logo en base64
+      // Charger le logo en base64 (pour éviter les erreurs de chemin sur Render)
       const logoPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'app_logo.png');
       let logoBase64 = '';
       try {
@@ -644,15 +645,16 @@ module.exports = {
       // const templatePath = path.resolve(__dirname, '../templates/demande_template.html');
 
       console.log('HTML Content ready. Launching Puppeteer...');
-      // Puppeteer launch compatible Render
+      // Puppeteer launch compatible Render, avec timeout augmenté (2 minutes)
       const browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: chromium.headless,
+        timeout: 120000, // 2 minutes timeout
       });
       const page = await browser.newPage();
-      await page.setContent(htmlContent);
+      await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 120000 });
       console.log('Page content set.');
 
       const filename = `${typeDemande}_${demande.id}_${verificationToken}.pdf`;
@@ -662,7 +664,7 @@ module.exports = {
         console.error("Erreur lors de la création du dossier 'documents':", err);
       });
       console.log(`Tentative de génération du PDF vers: ${pdfPath}`);
-      await page.pdf({ path: pdfPath, format: 'A4', printBackground: true });
+      await page.pdf({ path: pdfPath, format: 'A4', printBackground: true, timeout: 120000 });
       console.log('PDF généré avec succès.');
 
       await browser.close();
@@ -730,15 +732,16 @@ module.exports = {
       
       const citoyen = demande.citoyen;
       const donneesDemande = JSON.parse(demande.donneesJson || '{}');
-      // Ajout Render: Correction URL photo
+      // Ajout Render: Correction URL photo (remplace localhost par Render URL si nécessaire)
       const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
-      const photoUrl = donneesDemande.photoUrl
-        ? donneesDemande.photoUrl.replace('http://localhost:4000', BASE_URL)
-        : null;
+      let photoUrl = null;
+      if (donneesDemande.photoUrl) {
+        photoUrl = donneesDemande.photoUrl.replace('http://localhost:4000', BASE_URL).replace('https://localhost:4000', BASE_URL);
+      }
       const typeDemande = demande.typeDemande;
       const currentDate = new Date().toLocaleDateString("fr-FR");
 
-      // Charger le logo en base64
+      // Charger le logo en base64 (pour éviter les erreurs de chemin sur Render)
       const logoPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'app_logo.png');
       let logoBase64 = '';
       try {
@@ -1228,9 +1231,10 @@ module.exports = {
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: chromium.headless,
+        timeout: 120000, // 2 minutes timeout
       });
       const page = await browser.newPage();
-      await page.setContent(htmlContent, { waitUntil: 'networkidle0' }); // Attendre que le réseau soit inactif
+      await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 120000 }); // Attendre que le réseau soit inactif
       console.log('Contenu de la page avec signature défini.');
 
       const signedFilename = `${typeDemande}_${demande.id}_${verificationToken}_signed.pdf`;
@@ -1238,7 +1242,7 @@ module.exports = {
 
       await fs.mkdir(DOCUMENTS_DIR, { recursive: true }); // Ensure directory exists
       console.log(`Tentative de génération du PDF signé vers: ${signedPdfPath}`);
-      await page.pdf({ path: signedPdfPath, format: 'A4', printBackground: true });
+      await page.pdf({ path: signedPdfPath, format: 'A4', printBackground: true, timeout: 120000 });
       console.log('PDF signé généré avec succès.');
 
       await browser.close();
