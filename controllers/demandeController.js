@@ -176,11 +176,13 @@ module.exports = {
 
   async generateDocument(req, res) {
     console.log('--- Appel de la fonction generateDocument ---'); // LOG TRÈS IMPORTANT
+    let demande; // pour accès dans le catch
     try {
       const { id } = req.params;
       console.log(`Tentative de génération de document pour la demande ID: ${id}`);
 
-      const demande = await Demande.findByPk(id, {
+      // Correction ReferenceError: demande is not defined
+      demande = await Demande.findByPk(id, {
         include: [
           {
             model: Citoyen,
@@ -191,10 +193,9 @@ module.exports = {
           { model: Statut, as: 'statut' }
         ]
       });
-
       if (!demande) {
         console.error(`Erreur: Demande non trouvée pour l'ID: ${id}`);
-        return res.status(404).json({ message: "Demande non trouvée." });
+        return res.status(404).json({ message: "Demande introuvable" });
       }
       console.log('Demande trouvée:', demande.typeDemande);
       console.log('Statut actuel de la demande:', demande.statut?.nom);
@@ -621,8 +622,17 @@ module.exports = {
           `;
       }
 
+      // --- Puppeteer/Render compatibility ---
+      // Chemin du template (exemple si besoin d'un template HTML externe)
+      // const templatePath = path.resolve(__dirname, '../templates/demande_template.html');
+
       console.log('HTML Content ready. Launching Puppeteer...');
-      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      // Puppeteer launch compatible Render
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome'
+      });
       const page = await browser.newPage();
       await page.setContent(htmlContent);
       console.log('Page content set.');
@@ -632,8 +642,6 @@ module.exports = {
 
       await fs.mkdir(DOCUMENTS_DIR, { recursive: true }).catch(err => {
         console.error("Erreur lors de la création du dossier 'documents':", err);
-        // Si la création du dossier échoue, on peut choisir d'arrêter ici ou de continuer si le dossier existe déjà
-        // Pour l'instant, on continue, mais l'erreur est loggée.
       });
       console.log(`Tentative de génération du PDF vers: ${pdfPath}`);
       await page.pdf({ path: pdfPath, format: 'A4', printBackground: true });
@@ -656,20 +664,17 @@ module.exports = {
       console.log('--- Fin de la fonction generateDocument (Succès) ---');
 
     } catch (error) {
-      console.error("--- Erreur CRITIQUE de génération de document ---");
-      console.error("Détails de l'erreur:", error);
-      if (error.stack) {
-        console.error("Stack Trace:", error.stack);
-      }
+      console.error("Erreur génération document:", error);
       // En cas d'échec de la génération, mettez explicitement documentPath à null
-      await demande.update({
-        documentPath: null,
-        verificationToken: null // Ou conservez le token si vous voulez retracer la tentative
-      }).catch(dbErr => {
-        console.error("Erreur lors de la mise à jour de la demande après échec de génération:", dbErr);
-      });
-      res.status(500).json({ message: "Erreur serveur lors de la génération du document.", error: error.message });
-      console.log('--- Fin de la fonction generateDocument (Échec) ---');
+      if (demande && typeof demande.update === "function") {
+        await demande.update({
+          documentPath: null,
+          verificationToken: null
+        }).catch(dbErr => {
+          console.error("Erreur lors de la mise à jour de la demande après échec de génération:", dbErr);
+        });
+      }
+      return res.status(500).json({ message: "Erreur lors de la génération du document", error: error.message });
     }
   },
 
