@@ -239,15 +239,17 @@ module.exports = {
       console.log('DEBUG: Commune Naissance Enfant:', communeNaissanceEnfant?.nom);
       console.log('DEBUG: Province Naissance Enfant:', provinceNaissanceEnfant?.nom);
 
-      // Charger le logo en base64 (pour éviter les erreurs de chemin sur Render)
+      // Charger le logo en base64 ou utiliser l'URL publique Render si non trouvé
       const logoPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'app_logo.png');
       let logoBase64 = '';
       try {
         const logoBuffer = await fs.readFile(logoPath);
         logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
       } catch (e) {
-        console.error('Erreur lors de la lecture du logo:', e);
-        logoBase64 = '';
+        console.warn('Logo local introuvable, utilisation du logo hébergé sur Render.');
+        const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
+        const publicLogoUrl = `${BASE_URL}/public/assets/images/app_logo.png`;
+        logoBase64 = publicLogoUrl; // URL directe utilisée si le fichier n’est pas trouvé
       }
 
       // Define the base signature block without the Bourgmestre's name/font for initial generation
@@ -741,15 +743,17 @@ module.exports = {
       const typeDemande = demande.typeDemande;
       const currentDate = new Date().toLocaleDateString("fr-FR");
 
-      // Charger le logo en base64 (pour éviter les erreurs de chemin sur Render)
+      // Charger le logo en base64 ou utiliser l'URL publique Render si non trouvé
       const logoPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'app_logo.png');
       let logoBase64 = '';
       try {
         const logoBuffer = await fs.readFile(logoPath);
         logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
       } catch (e) {
-        console.error('Erreur lors de la lecture du logo:', e);
-        logoBase64 = '';
+        console.warn('Logo local introuvable, utilisation du logo hébergé sur Render.');
+        const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
+        const publicLogoUrl = `${BASE_URL}/public/assets/images/app_logo.png`;
+        logoBase64 = publicLogoUrl; // URL directe utilisée si le fichier n’est pas trouvé
       }
       
       // *** MODIFICATION ICI : Récupérer le nom du bourgmestre depuis req.user ***
