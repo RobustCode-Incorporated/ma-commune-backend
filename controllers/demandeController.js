@@ -613,7 +613,7 @@ module.exports = {
                 right: 6px;
                 width: 36px;
                 height: 24px;
-                background-image: url('${drapeauRDCBase64}');
+                background-image: url('${drapeaurdcBase64}');
                 background-size: cover;
                 background-position: center;
                 border: 1px solid #003da5;
@@ -790,15 +790,15 @@ module.exports = {
       }
       // Charger le drapeau RDC en base64 ou utiliser l'URL publique Render si non trouvé
       const drapeauPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'drapeau_rdc.svg');
-      let drapeauRDCBase64 = '';
+      let drapeaurdcBase64 = '';
       try {
         const drapeauBuffer = await fs.readFile(drapeauPath);
-        drapeauRDCBase64 = `data:image/svg+xml;base64,${drapeauBuffer.toString('base64')}`;
+        drapeaurdcBase64 = `data:image/svg+xml;base64,${drapeauBuffer.toString('base64')}`;
       } catch (e) {
         console.warn('Drapeau local introuvable, utilisation du drapeau hébergé sur Render.');
         const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
         const publicDrapeauUrl = `${BASE_URL}/public/assets/images/drapeau_rdc.svg`;
-        drapeauRDCBase64 = publicDrapeauUrl; // URL directe utilisée si le fichier n’est pas trouvé
+        drapeaurdcBase64 = publicDrapeauUrl; // URL directe utilisée si le fichier n’est pas trouvé
       }
       
       // *** MODIFICATION ICI : Récupérer le nom du bourgmestre depuis req.user ***
@@ -1223,7 +1223,7 @@ module.exports = {
                 right: 6px;
                 width: 36px;
                 height: 24px;
-                background-image: url('${drapeauRDCBase64}');
+                background-image: url('${drapeaurdcBase64}');
                 background-size: cover;
                 background-position: center;
                 border: 1px solid #003da5;
