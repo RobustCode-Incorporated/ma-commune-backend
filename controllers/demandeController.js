@@ -219,7 +219,7 @@ module.exports = {
       let htmlContent = '';
       const currentDate = new Date().toLocaleDateString("fr-FR");
       const verificationToken = uuidv4();
-      const verificationUrl = `http://localhost:4000/verify-document?token=${verificationToken}`;
+      const verificationUrl = `https://ma-commune-backend.onrender.com/verify-document?token=${verificationToken}`;
       const qrCodeDataURL = await qrcode.toDataURL(verificationUrl);
       console.log('Token et QR Code générés.');
 
@@ -500,32 +500,22 @@ module.exports = {
                 }
 
                 .id-card {
-                  width: 336px;   /* largeur carte */
-                  height: 204px;  /* hauteur carte */
+                  width: 336px;
+                  height: 204px;
                   border: 1px solid #003da5;
                   border-radius: 10px;
-
-                  /* 🔵 Nouveau fond guilloché ondulé croisé (SVG inline encodé) */
-                  background: #ffffff;
-                  background-image: url("data:image/svg+xml;utf8,\
-                    <svg xmlns='http://www.w3.org/2000/svg' width='336' height='204'>\
-                      <defs>\
-                        <pattern id='waveCross' patternUnits='userSpaceOnUse' width='40' height='40'>\
-                          <path d='M0 20 Q 10 10 20 20 T 40 20' stroke='%23003da522' fill='none' stroke-width='1'/>\
-                          <path d='M20 0 Q 10 10 20 20 T 20 40' stroke='%23003da522' fill='none' stroke-width='1'/>\
-                        </pattern>\
-                      </defs>\
-                      <rect width='336' height='204' fill='url(%23waveCross)'/>\
-                    </svg>");
-                  background-size: cover;
-                  background-position: center;
-
+                  position: relative;
                   box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
                   display: flex;
                   flex-direction: column;
                   padding: 6px;
                   box-sizing: border-box;
-                  position: relative;
+
+                  /* 🔵 Guilloche + carte RDC + léopard intégrés en base64 */
+                  background: #ffffff;
+                  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSczMzYnIGhlaWdodD0nMjA0Jz48ZGVmcz48cGF0dGVybiBpZD0nd2F2ZUNyb3NzJyB1bml0cz0ndXNlclNwYWNlT25Vc2UnIHdpZHRoPSc0MCcgaGVpZ2h0PSc0MCc+PHBhdGggZD0nTTAgMjAgUTEwIDEwIDIwIDIwIFQ0MCAyMCcgc3Ryb2tlPScjMDAzZGExMjInIGZpbGw9J25vbmUnIHN0cm9rZS13aWR0aD0nMScvPjxwYXRoIGQ9J00yMCAwIFEwIDEwIDIwIDIwVDE4IDQwJyBzdHJva2U9JyMwMDNkYTIyJyBmaWxsPSdub25lJyBzdHJva2Utd2lkdGg9JzEnLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9JzMzNicgaGVpZ2h0PScyMDQnIGZpbGw9InVybCgjd2F2ZUNyb3NzKSIvPjxnIG9wYWNpdHk9JzAuMDUnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzAwM2RhNSc+PHBhdGggZD0nTTYwLDMwIEw4MCwzMCBMODUsNTAgTDY1LDUwIFonLz48cGF0aCBkPSdNMTIwLDUwIEMxMjUsNDUgMTMwLDU1IDEzNSw1MCcgc3Ryb2tlPScjMDAzZGExMScvPjwvZz48L3N2Zz4=");
+                  background-size: cover;
+                  background-position: center;
                 }
 
                 .header-with-image {
@@ -614,7 +604,22 @@ module.exports = {
                   border-bottom-right-radius: 10px;
                   margin: 0;
                 }
-              </style>
+
+                /* 🔵 Drapeau RDC à l’extrême droite */
+                .id-card::after {
+                  content: '';
+                  position: absolute;
+                  top: 6px;
+                  right: 6px;
+                  width: 36px;
+                  height: 24px;
+                  background-image: url('${drapeauRDCBase64}');
+                  background-size: cover;
+                  background-position: center;
+                  border: 1px solid #003da5;
+                  border-radius: 2px;
+                }
+                </style>
               <body>
                 <div class="id-card">
                   <!-- En-tête avec logo et texte -->
@@ -1081,125 +1086,137 @@ module.exports = {
         case 'carte_identite':
           htmlContent = `
             <style>
-              body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                background: #f0f0f0;
-              }
-              .id-card {
-                width: 336px;   /* Dimensions d'une carte de crédit en pixels */
-                height: 204px;
-                border: 1px solid #003da5;
-                border-radius: 10px;
-                background: #fff;
-                box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
-                display: flex;
-                flex-direction: column;
-                padding: 6px;
-                box-sizing: border-box;
-                position: relative;
-              }
-              .header-with-image {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                margin-bottom: 4px;
-              }
-              .header-image {
-                position: absolute;
-                left: 0;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 28px;
-              }
-              .header-text {
-                font-size: 8px;
-                line-height: 1.2;
-                text-align: center;
-                flex-grow: 1;
-              }
-              .header-text h3 {
-                margin: 0;
-                font-size: 9px;
-                color: #003da5;
-              }
-              .card-body {
-                display: flex;
-                flex: 1;
-              }
-              .card-left {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-              }
-              .card-right {
-                flex: 2;
-                font-size: 9px;
-                line-height: 1.2;
-                padding-left: 6px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-              }
-              .profile-pic {
-                width: 60px;
-                height: 60px;
-                border-radius: 5px;
-                object-fit: cover;
-                border: 1px solid #003da5;
-                margin-bottom: 4px;
-              }
-              .qr-code img {
-                width: 50px;
-                height: 50px;
-              }
-              .card-info p {
-                margin: 1px 0;
-                font-size: 7px;
-                line-height: 1.1;
-              }
-              .verification_link {
-                font-size: 5px;
-                text-align: center;
-                margin-top: 2px;
-                word-break: break-all;
-              }
-              .signature {
-                font-size: 7px;
-                text-align: right;
-                margin-top: auto;
-                font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-              }
-              .bourgmestre-name {
-                font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-                font-size: 8px;
-                margin-top: 2px;
-                font-weight: bold;
-                color: #000;
-                text-align: right;
-              }
-              .footer-line {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 2px; /* Épaisseur réduite à 2px */
-                background: linear-gradient(to right, 
-                            #0095c9 0%, #0095c9 33.33%, 
-                            #fff24b 33.33%, #fff24b 66.66%, 
-                            #db3832 66.66%, #db3832 100%);
-                margin-left: 2px;
-                margin-right: 2px;
-                margin: 0;
-              }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background: #f0f0f0;
+            }
+
+            .id-card {
+              width: 336px;
+              height: 204px;
+              border: 1px solid #003da5;
+              border-radius: 10px;
+              position: relative;
+              box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+              display: flex;
+              flex-direction: column;
+              padding: 6px;
+              box-sizing: border-box;
+
+              /* 🔵 Guilloche + carte RDC + léopard intégrés en base64 */
+              background: #ffffff;
+              background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSczMzYnIGhlaWdodD0nMjA0Jz48ZGVmcz48cGF0dGVybiBpZD0nd2F2ZUNyb3NzJyB1bml0cz0ndXNlclNwYWNlT25Vc2UnIHdpZHRoPSc0MCcgaGVpZ2h0PSc0MCc+PHBhdGggZD0nTTAgMjAgUTEwIDEwIDIwIDIwIFQ0MCAyMCcgc3Ryb2tlPScjMDAzZGExMjInIGZpbGw9J25vbmUnIHN0cm9rZS13aWR0aD0nMScvPjxwYXRoIGQ9J00yMCAwIFEwIDEwIDIwIDIwVDE4IDQwJyBzdHJva2U9JyMwMDNkYTIyJyBmaWxsPSdub25lJyBzdHJva2Utd2lkdGg9JzEnLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9JzMzNicgaGVpZ2h0PScyMDQnIGZpbGw9InVybCgjd2F2ZUNyb3NzKSIvPjxnIG9wYWNpdHk9JzAuMDUnIGZpbGw9J25vbmUnIHN0cm9rZT0nIzAwM2RhNSc+PHBhdGggZD0nTTYwLDMwIEw4MCwzMCBMODUsNTAgTDY1LDUwIFonLz48cGF0aCBkPSdNMTIwLDUwIEMxMjUsNDUgMTMwLDU1IDEzNSw1MCcgc3Ryb2tlPScjMDAzZGExMScvPjwvZz48L3N2Zz4=");
+              background-size: cover;
+              background-position: center;
+            }
+
+            .header-with-image {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              position: relative;
+              margin-bottom: 4px;
+            }
+
+            .header-image {
+              position: absolute;
+              left: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 28px;
+            }
+
+            .header-text {
+              font-size: 8px;
+              line-height: 1.2;
+              text-align: center;
+              flex-grow: 1;
+            }
+
+            .header-text h3 {
+              margin: 0;
+              font-size: 9px;
+              color: #003da5;
+            }
+
+            .card-body {
+              display: flex;
+              flex: 1;
+            }
+
+            .card-left {
+              flex: 1;
+              text-align: center;
+            }
+
+            .card-right {
+              flex: 2;
+              font-size: 9px;
+              line-height: 1.2;
+              padding-left: 6px;
+            }
+
+            .profile-pic {
+              width: 70px;
+              height: 70px;
+              border-radius: 5px;
+              object-fit: cover;
+              border: 1px solid #003da5;
+              margin-bottom: 6px;
+            }
+
+            .qr-code img {
+              width: 55px;
+              height: 55px;
+              margin-top: 4px;
+            }
+
+            .card-info p {
+              margin: 1px 0;
+            }
+
+            .signature {
+              font-size: 8px;
+              text-align: right;
+              margin-top: 4px;
+              font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+            }
+
+            .footer-line {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              width: 100%;
+              height: 3px;
+              background: linear-gradient(to right, 
+                          #0095c9 0%, #0095c9 33.33%, 
+                          #fff24b 33.33%, #fff24b 66.66%, 
+                          #db3832 66.66%, #db3832 100%);
+              border-bottom-left-radius: 10px;
+              border-bottom-right-radius: 10px;
+              margin: 0;
+            }
+
+            /* 🔵 Drapeau RDC à l’extrême droite */
+            .id-card::after {
+              content: '';
+              position: absolute;
+              top: 6px;
+              right: 6px;
+              width: 36px;
+              height: 24px;
+              background-image: url('${drapeauRDCBase64}');
+              background-size: cover;
+              background-position: center;
+              border: 1px solid #003da5;
+              border-radius: 2px;
+            }
             </style>
             <body>
               <div class="id-card">
