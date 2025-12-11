@@ -252,6 +252,19 @@ module.exports = {
         logoBase64 = publicLogoUrl; // URL directe utilisée si le fichier n’est pas trouvé
       }
 
+      // Charger le drapeau RDC en base64
+      const drapeauPath = path.join(__dirname, '..', 'public', 'assets', 'images', 'drapeau_rdc.svg');
+      let drapeauRDCBase64 = '';
+      try {
+        const drapeauBuffer = await fs.readFile(drapeauPath);
+        drapeauRDCBase64 = `data:image/svg+xml;base64,${drapeauBuffer.toString('base64')}`;
+      } catch (e) {
+        console.warn('Drapeau local introuvable, utilisation du drapeau hébergé sur Render.');
+        const BASE_URL = process.env.RENDER_EXTERNAL_URL || 'https://ma-commune-backend.onrender.com';
+        const publicDrapeauUrl = `${BASE_URL}/public/assets/images/drapeau_rdc.svg`;
+        drapeauRDCBase64 = publicDrapeauUrl;
+      }
+
       // Define the base signature block without the Bourgmestre's name/font for initial generation
       const baseSignatureBlock = `
         <div class="signature-section" style="text-align: right; margin-top: 50px;">
