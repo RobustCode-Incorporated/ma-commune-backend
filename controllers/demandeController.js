@@ -1228,9 +1228,6 @@ module.exports = {
                     <div class="qr-code">
                       <img src="${qrCodeDataURL}" alt="QR Code">
                     </div>
-                    <div class="verification_link">
-                      <p>${verificationUrl || 'Lien de vérification'}</p>
-                    </div>
                   </div>
                   <div class="card-right">
                     <div class="card-info">
