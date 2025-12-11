@@ -812,7 +812,7 @@ module.exports = {
 
       // Re-use the original verification token for the signed document
       const verificationToken = demande.verificationToken; 
-      const verificationUrl = `http://localhost:4000/verify-document?token=${verificationToken}`;
+      const verificationUrl = `https://ma-commune-backend.onrender.com/verify-document?token=${verificationToken}`;
       const qrCodeDataURL = await qrcode.toDataURL(verificationUrl);
       console.log('Jeton de vérification et QR Code réutilisés.');
 
