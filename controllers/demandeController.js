@@ -498,12 +498,28 @@ module.exports = {
                   height: 100vh;
                   background: #f0f0f0;
                 }
+
                 .id-card {
                   width: 336px;   /* largeur carte */
                   height: 204px;  /* hauteur carte */
                   border: 1px solid #003da5;
                   border-radius: 10px;
-                  background: #fff;
+
+                  /* 🔵 Nouveau fond guilloché ondulé croisé (SVG inline encodé) */
+                  background: #ffffff;
+                  background-image: url("data:image/svg+xml;utf8,\
+                    <svg xmlns='http://www.w3.org/2000/svg' width='336' height='204'>\
+                      <defs>\
+                        <pattern id='waveCross' patternUnits='userSpaceOnUse' width='40' height='40'>\
+                          <path d='M0 20 Q 10 10 20 20 T 40 20' stroke='%23003da522' fill='none' stroke-width='1'/>\
+                          <path d='M20 0 Q 10 10 20 20 T 20 40' stroke='%23003da522' fill='none' stroke-width='1'/>\
+                        </pattern>\
+                      </defs>\
+                      <rect width='336' height='204' fill='url(%23waveCross)'/>\
+                    </svg>");
+                  background-size: cover;
+                  background-position: center;
+
                   box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
                   display: flex;
                   flex-direction: column;
@@ -511,6 +527,7 @@ module.exports = {
                   box-sizing: border-box;
                   position: relative;
                 }
+
                 .header-with-image {
                   display: flex;
                   align-items: center;
@@ -518,6 +535,7 @@ module.exports = {
                   position: relative;
                   margin-bottom: 4px;
                 }
+
                 .header-image {
                   position: absolute;
                   left: 0;
@@ -525,31 +543,37 @@ module.exports = {
                   transform: translateY(-50%);
                   width: 28px;
                 }
+
                 .header-text {
                   font-size: 8px;
                   line-height: 1.2;
                   text-align: center;
                   flex-grow: 1;
                 }
+
                 .header-text h3 {
                   margin: 0;
                   font-size: 9px;
                   color: #003da5;
                 }
+
                 .card-body {
                   display: flex;
                   flex: 1;
                 }
+
                 .card-left {
                   flex: 1;
                   text-align: center;
                 }
+
                 .card-right {
                   flex: 2;
                   font-size: 9px;
                   line-height: 1.2;
                   padding-left: 6px;
                 }
+
                 .profile-pic {
                   width: 70px;
                   height: 70px;
@@ -558,20 +582,24 @@ module.exports = {
                   border: 1px solid #003da5;
                   margin-bottom: 6px;
                 }
+
                 .qr-code img {
                   width: 55px;
                   height: 55px;
                   margin-top: 4px;
                 }
+
                 .card-info p {
                   margin: 1px 0;
                 }
+
                 .signature {
                   font-size: 8px;
                   text-align: right;
                   margin-top: 4px;
                   font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
                 }
+
                 .footer-line {
                   position: absolute;
                   bottom: 0;
