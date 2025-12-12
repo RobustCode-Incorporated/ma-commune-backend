@@ -219,7 +219,7 @@ module.exports = {
       let htmlContent = '';
       const currentDate = new Date().toLocaleDateString("fr-FR");
       const verificationToken = uuidv4();
-      const verificationUrl = `https://ma-commune-backend.onrender.com/verify-document?token=${verificationToken}`;
+      const verificationUrl = `https://ma-commune-backend.onrender.com/api/demandes/verify-document?token=${verificationToken}`;
       const qrCodeDataURL = await qrcode.toDataURL(verificationUrl);
       console.log('Token et QR Code générés.');
 
