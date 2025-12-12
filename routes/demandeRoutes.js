@@ -10,6 +10,8 @@ router.get('/me', auth(['citoyen']), demandeController.getMyDemandes);
 // Route d'upload d'image
 router.post('/upload', demandeController.uploadImage); // C'est ici que la fonction est appelée
 
+router.get('/verify-document', demandeController.verifyDocumentToken);
+
 // Route pour récupérer les documents validés
 router.get('/validated', auth(['citoyen']), demandeController.getValidatedDocuments);
 
@@ -33,7 +35,5 @@ router.delete('/:id', auth(['admin', 'admin_general']), demandeController.delete
 // Routes de génération et de validation/signature des documents
 router.put('/:id/generate-document', auth(['agent', 'admin', 'admin_general']), demandeController.generateDocument);
 router.put('/:id/validate-document', auth(['admin', 'admin_general']), demandeController.validateDocument);
-
-router.get('/document/verify', demandeController.verifyDocumentToken);
 
 module.exports = router;
