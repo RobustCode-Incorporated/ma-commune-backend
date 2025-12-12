@@ -34,4 +34,6 @@ router.delete('/:id', auth(['admin', 'admin_general']), demandeController.delete
 router.put('/:id/generate-document', auth(['agent', 'admin', 'admin_general']), demandeController.generateDocument);
 router.put('/:id/validate-document', auth(['admin', 'admin_general']), demandeController.validateDocument);
 
+router.get('/document/verify', demandeController.verifyDocumentToken);
+
 module.exports = router;
