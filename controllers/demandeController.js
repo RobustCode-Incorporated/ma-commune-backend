@@ -1389,7 +1389,7 @@ module.exports = {
   },
 
   // Vérification d’un document via le token
-verifyDocumentToken: async (req, res) => {
+  verifyDocumentToken: async (req, res) => {
   try {
     const token = req.query.token;
 
