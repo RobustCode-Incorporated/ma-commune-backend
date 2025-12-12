@@ -1389,52 +1389,53 @@ module.exports = {
   },
 
   // Vérification d’un document via le token
-  verifyDocumentToken: async (req, res) => {
-  try {
-    const token = req.query.token;
+  async verifyDocumentToken(req, res) {
+    try {
+      const token = req.query.token;
 
-    if (!token) {
-      return res.status(400).send('Token manquant.');
+      if (!token) {
+        return res.status(400).send('Token manquant.');
+      }
+
+      const demande = await Demande.findOne({
+        where: { verificationToken: token },
+        include: [{ model: Citoyen, as: 'citoyen' }]
+      });
+
+      if (!demande) {
+        return res.status(404).send('Document non trouvé ou invalide.');
+      }
+
+      return res.send(`
+        <html>
+          <head>
+            <title>Vérification du Document</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; }
+              h1 { color: #003da5; text-align: center; }
+              p { font-size: 14px; line-height: 1.4; }
+              .card { border: 1px solid #003da5; padding: 20px; border-radius: 8px; max-width: 500px; margin: auto; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>Document Vérifié</h1>
+              <p><strong>Nom :</strong> ${demande.citoyen.nom}</p>
+              <p><strong>Postnom :</strong> ${demande.citoyen.postnom}</p>
+              <p><strong>Prénom :</strong> ${demande.citoyen.prenom}</p>
+              <p><strong>N° Unique :</strong> ${demande.citoyen.numeroUnique}</p>
+              <p><strong>Type de Document :</strong> ${demande.typeDemande}</p>
+              <p><strong>Date de délivrance :</strong> ${new Date(demande.createdAt).toLocaleDateString("fr-FR")}</p>
+            </div>
+          </body>
+        </html>
+      `);
+
+    } catch (err) {
+      console.error('Erreur vérification document:', err);
+      return res.status(500).send('Erreur serveur lors de la vérification du document.');
     }
-
-    const demande = await Demande.findOne({ verificationToken: token })
-      .populate('citoyen');
-
-    if (!demande) {
-      return res.status(404).send('Document non trouvé ou invalide.');
-    }
-
-    // Page HTML affichée lors du scan
-    return res.send(`
-      <html>
-        <head>
-          <title>Vérification du Document</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 40px; }
-            h1 { color: #003da5; text-align: center; }
-            p { font-size: 14px; line-height: 1.4; }
-            .card { border: 1px solid #003da5; padding: 20px; border-radius: 8px; max-width: 500px; margin: auto; }
-          </style>
-        </head>
-        <body>
-          <div class="card">
-            <h1>Document Vérifié</h1>
-            <p><strong>Nom :</strong> ${demande.citoyen.nom}</p>
-            <p><strong>Postnom :</strong> ${demande.citoyen.postnom}</p>
-            <p><strong>Prénom :</strong> ${demande.citoyen.prenom}</p>
-            <p><strong>N° Unique :</strong> ${demande.citoyen.numeroUnique}</p>
-            <p><strong>Type de Document :</strong> ${demande.type}</p>
-            <p><strong>Date de délivrance :</strong> ${new Date(demande.createdAt).toLocaleDateString("fr-FR")}</p>
-          </div>
-        </body>
-      </html>
-    `);
-
-  } catch (err) {
-    console.error('Erreur vérification document:', err);
-    return res.status(500).send('Erreur serveur lors de la vérification du document.');
-  }
-},
+  },
 
   // --- Apple Wallet Pass generation endpoint ---
   async generateWalletPass(req, res) {
