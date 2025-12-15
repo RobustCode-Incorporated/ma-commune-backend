@@ -68,3 +68,29 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 };
+
+// 🔔 Enregistrement du token FCM du citoyen
+exports.saveFcmToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+
+    if (!fcmToken) {
+      return res.status(400).json({ message: 'FCM token manquant' });
+    }
+
+    // L'utilisateur connecté est injecté par authMiddleware
+    const citoyenId = req.user.id;
+
+    const citoyen = await Citoyen.findByPk(citoyenId);
+    if (!citoyen) {
+      return res.status(404).json({ message: 'Citoyen non trouvé' });
+    }
+
+    await citoyen.update({ fcmToken });
+
+    return res.json({ message: 'FCM token enregistré avec succès' });
+  } catch (error) {
+    console.error('Erreur saveFcmToken:', error);
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
