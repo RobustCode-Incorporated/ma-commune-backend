@@ -7,6 +7,8 @@ const auth = require('../middleware/authMiddleware');
 // DOIT être placée avant la route générique '/:id' pour éviter les conflits.
 router.get('/me', auth(['citoyen']), citoyenController.getProfile);
 
+router.post('/fcm-token',auth(['citoyen']),citoyenController.saveFcmToken);
+
 // Accès aux agents ou admins
 router.get('/', auth(['agent', 'admin']), citoyenController.getAllCitoyens);
 router.get('/:id', auth(['agent', 'admin']), citoyenController.getCitoyenById);

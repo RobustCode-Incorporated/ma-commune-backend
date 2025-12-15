@@ -1,5 +1,6 @@
 // controllers/demandeController.js
-const { Demande, Citoyen, Statut, Agent, Commune, Province, Administrateur } = require('../models'); // Added Administrateur model
+const { notifyEnTraitement, notifyValidee } = require('../utils/pushNotifier');
+const { Demande, Citoyen } = require('../models');
 const puppeteer = require('puppeteer-core');
 const chromium = require('@sparticuz/chromium');
 const path = require('path');
@@ -20,7 +21,7 @@ fs.mkdir(UPLOADS_DIR, { recursive: true }).catch(console.error);
 const getStatutIdByName = async (name) => {
   const statut = await Statut.findOne({ where: { nom: name } });
   return statut ? statut.id : null;
-};
+}
 
 module.exports = {
   async getAllDemandes(req, res) {
@@ -86,13 +87,51 @@ module.exports = {
 
   async updateDemande(req, res) {
     try {
-      const demande = await Demande.findByPk(req.params.id);
-      if (!demande) return res.status(404).json({ message: 'Demande non trouvée' });
+      // On inclut toujours le citoyen pour avoir le FCM token pour la notification
+      const demande = await Demande.findByPk(req.params.id, {
+        include: [{ model: Citoyen, as: 'citoyen' }]
+      });
+
+      if (!demande) {
+        return res.status(404).json({ message: 'Demande introuvable' });
+      }
+
+      // Sauvegarde de l'ancien statut
+      const ancienStatut = demande.statutId;
+
+      // Mise à jour de la demande
       await demande.update(req.body);
-      res.json(demande);
+
+      // Vérification et envoi des notifications push si le statut change
+      if (req.body.statutId && req.body.statutId !== ancienStatut) {
+        // On s'assure d'avoir le citoyen dans l'instance pour la notification
+        // (si la mise à jour a changé le citoyenId, on recharge le citoyen)
+        let demandeAvecCitoyen = demande;
+        if (!demande.citoyen || !demande.citoyen.fcmToken) {
+          demandeAvecCitoyen = await Demande.findByPk(demande.id, {
+            include: [{ model: Citoyen, as: 'citoyen' }]
+          });
+        }
+
+        // Agent → Demande en traitement
+        if (req.user && req.user.role === 'agent') {
+          await notifyEnTraitement(demandeAvecCitoyen);
+        }
+
+        // Admin / Bourgmestre → Demande validée
+        if (req.user && ['admin', 'admin_general'].includes(req.user.role)) {
+          await notifyValidee(demandeAvecCitoyen);
+        }
+      }
+
+      return res.json({
+        message: 'Demande mise à jour avec succès',
+        demande
+      });
+
     } catch (error) {
       console.error('Erreur updateDemande:', error);
-      res.status(400).json({ message: 'Erreur mise à jour', error: error.message });
+      return res.status(500).json({ message: 'Erreur serveur' });
     }
   },
 
