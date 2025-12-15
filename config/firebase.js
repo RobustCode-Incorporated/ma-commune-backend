@@ -2,9 +2,13 @@ const admin = require('firebase-admin');
 require('dotenv').config();
 
 if (!admin.apps.length) {
+  if (!process.env.FIREBASE_PRIVATE_KEY) {
+    throw new Error('FIREBASE_PRIVATE_KEY is not defined in your environment variables');
+  }
+
   admin.initializeApp({
     credential: admin.credential.cert({
-      type: process.env.FIREBASE_TYPE,
+      type: process.env.FIREBASE_TYPE || 'service_account',
       project_id: process.env.FIREBASE_PROJECT_ID,
       private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
       private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
